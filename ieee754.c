@@ -61,12 +61,43 @@ typedef struct Ieee
         }
     }
 
+    void Addition(IeeeStandart x, IeeeStandart y, IeeeStandart *resp)
+    {
+        int exp_difference;
+        int normalize_mantissa;
+
+        x.mantissa += 1.0;
+        y.mantissa += 1.0;
+
+        if ( x.expoent >= y.expoent)
+        {
+            resp->sign = x.sign;
+            exp_difference = x.expoent - y.expoent;
+            resp->expoent = x.expoent;
+            y.expoent += exp_difference;
+            y.mantissa /= pow(2, exp_difference);
+        }
+        else
+        {
+            resp->sign = y.sign;
+            exp_difference = y.expoent - x.expoent;
+            resp->expoent = y.expoent;
+            x.expoent += exp_difference;
+            x.mantissa /= pow(2, exp_difference);
+        }
+
+        resp->mantissa = x.sign == y.sign? x.mantissa + y.mantissa : x.mantissa - y.mantissa;
+        normalize_mantissa = floor(log2(resp->mantissa));
+        resp->mantissa = resp->mantissa/pow(2, normalize_mantissa);
+        resp->mantissa -= 1.0;
+    }
+
     int main()
     {
         IeeeStandart x1, x2, x3;
-        Double2Ieee(0.085, &x1);
-        Double2Ieee(0.085, &x2);
-        Multipication(x1, x2, &x3);
+        Double2Ieee(0.4, &x1);
+        Double2Ieee(0.56, &x2);
+        Addition(x1, x2, &x3);
         printf("\n%d, %d, %lf\n", x3.sign, x3.expoent, x3.mantissa);
         return 0;
     }
