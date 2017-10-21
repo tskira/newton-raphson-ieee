@@ -4,6 +4,12 @@
  * Aplicar newton raphson para calculo da raiz de um numero
  * no padrao ieee 754 de 64 bits
  * 
+ * O padrao ieee, para 64 bits sera representado por uma struct
+ * As funcoes de manipulacao implementadas sao:
+ *  Multiplication
+ *  Addition
+ *  Division
+ * 
  * Para compilar:
  * gcc ieee754.c -lm
  */
@@ -99,12 +105,26 @@ typedef struct Ieee
         resp->mantissa -= 1.0;
     }
 
+    void Division(IeeeStandart x, IeeeStandart y, IeeeStandart *resp)
+    {
+        int normalize_mantissa;
+
+        resp->sign = x.sign ^ y.sign;
+        x.mantissa += 1.0;
+        y.mantissa += 1.0;
+        resp->mantissa = x.mantissa/y.mantissa;
+        normalize_mantissa = floor(log2(resp->mantissa));
+        resp->mantissa /= pow(2, normalize_mantissa);
+        resp->mantissa -= 1.0;
+        resp->expoent = x.expoent - y.expoent + normalize_mantissa + BIAS;
+    }
+
     int main()
     {
         IeeeStandart x1, x2, x3;
-        Double2Ieee(9.75, &x1);
-        Double2Ieee(0.5625, &x2);
-        Addition(x1, x2, &x3);
+        Double2Ieee(127.03125, &x1);
+        Double2Ieee(16.9375, &x2);
+        Division(x1, x2, &x3);
         printf("\n%d, %d, %lf\n", x3.sign, x3.expoent, x3.mantissa);
         return 0;
     }
