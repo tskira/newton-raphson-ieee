@@ -63,6 +63,12 @@ typedef struct Ieee
 
     void Addition(IeeeStandart x, IeeeStandart y, IeeeStandart *resp)
     {
+        /* TODO:
+         *
+         * Resolver caso em que x ou y == 0;
+         * 
+         */
+         
         int exp_difference;
         int normalize_mantissa;
 
@@ -89,14 +95,15 @@ typedef struct Ieee
         resp->mantissa = x.sign == y.sign? x.mantissa + y.mantissa : x.mantissa - y.mantissa;
         normalize_mantissa = floor(log2(resp->mantissa));
         resp->mantissa = resp->mantissa/pow(2, normalize_mantissa);
+        resp->expoent += normalize_mantissa;
         resp->mantissa -= 1.0;
     }
 
     int main()
     {
         IeeeStandart x1, x2, x3;
-        Double2Ieee(0.4, &x1);
-        Double2Ieee(0.56, &x2);
+        Double2Ieee(9.75, &x1);
+        Double2Ieee(0.5625, &x2);
         Addition(x1, x2, &x3);
         printf("\n%d, %d, %lf\n", x3.sign, x3.expoent, x3.mantissa);
         return 0;
