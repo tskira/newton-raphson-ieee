@@ -1,5 +1,8 @@
 /* 
  * Trampo MC:
+ * 
+ * Thiago Kira
+ * ra78750
  *
  * Aplicar newton raphson para calculo da raiz de um numero
  * no padrao ieee 754 de 64 bits
@@ -24,9 +27,9 @@ typedef struct Ieee
     int sign;
     int expoent;
     double mantissa;
-} IeeeStandart;
+} IeeeStandard;
 
-    void Double2Ieee(double value, IeeeStandart *convert_value )
+    void Double2Ieee(double value, IeeeStandard *convert_value )
     {
         if( value == 0.0)
         {
@@ -43,12 +46,12 @@ typedef struct Ieee
         }
     }
 
-    int CheckZero(IeeeStandart x)
+    int CheckZero(IeeeStandard x)
     {
         return (x.sign == 0 & x.expoent == 0 & x.mantissa == 0.0);
     }
 
-    void Multipication(IeeeStandart x, IeeeStandart y, IeeeStandart *resp)
+    void Multiplication(IeeeStandard x, IeeeStandard y, IeeeStandard *resp)
     {
         int normalize_exp;
         double normalize_mantissa;
@@ -67,11 +70,11 @@ typedef struct Ieee
         }
     }
 
-    void Addition(IeeeStandart x, IeeeStandart y, IeeeStandart *resp)
+    void Addition(IeeeStandard x, IeeeStandard y, IeeeStandard *resp)
     {
         /* TODO:
          *
-         * Resolver caso em que x ou y == 0;
+         * Tratar caso em que x ou y == 0;
          * 
          */
          
@@ -105,7 +108,7 @@ typedef struct Ieee
         resp->mantissa -= 1.0;
     }
 
-    void Division(IeeeStandart x, IeeeStandart y, IeeeStandart *resp)
+    void Division(IeeeStandard x, IeeeStandard y, IeeeStandard *resp)
     {
         int normalize_mantissa;
 
@@ -118,13 +121,74 @@ typedef struct Ieee
         resp->mantissa -= 1.0;
         resp->expoent = x.expoent - y.expoent + normalize_mantissa + BIAS;
     }
+    
+    void Copy(IeeeStandard x, IeeeStandard *y)
+    {
+        y->sign = x.sign;
+        y->expoent = x.expoent;
+        y->mantissa = x.mantissa;
+    }
+
+    /*
+     * Funcao Newton-Rapshon
+     * 
+     * Aplicacao do metodo newton rapshon para calculo da raiz quadrada
+     * utilizando o padrao ieee para 64 bits. 
+     * 
+     * x(k+1) = (xk^2 + X) / 2*xk
+     * resp  =  factor1   / factor2
+     * 
+     * @param:
+     * x = valor a ser calculado
+     * resp = resposta(referencia)
+     * k = numero de iteracoes desejadas
+     * 
+     */
+    void NewtonRaphson(IeeeStandard x, IeeeStandard *resp, int k)
+    {
+        IeeeStandard xk;
+        IeeeStandard dois;
+        IeeeStandard factor1, factor2;
+
+        /* 
+         * Determinar o xk inicial:
+         * Quando o chute inicial eh muito ruim a funcao nao converge
+         * Por exemplo, a funcao padrao que utilizei foi x0 = x/2
+         * Para valores mais precisos (ex 25, 36 ...) a funcao conver-
+         * ge normalmente
+         * Para o caso do numero de avogrado a funcao apresentou pro - 
+         * blemas, portanto foi nescessario roubar o chute inicial.
+         */
+        
+        /* Chute padrao: 
+        Division(x, dois, &xk);
+        */
+
+        /* Chute roubado: */         
+        Double2Ieee(700000000000.0, &xk);        
+
+        Double2Ieee(2.0, &dois);
+
+        while( k-- > 0)
+        {
+            Multiplication(xk, xk, &factor1);
+            Addition(factor1, x, &factor1);
+            Multiplication(dois, xk, &factor2);
+            Division(factor1, factor2, resp);
+            Copy(*resp, &xk);
+        }
+    }
 
     int main()
     {
-        IeeeStandart x1, x2, x3;
-        Double2Ieee(127.03125, &x1);
-        Double2Ieee(16.9375, &x2);
-        Division(x1, x2, &x3);
-        printf("\n%d, %d, %lf\n", x3.sign, x3.expoent, x3.mantissa);
+        IeeeStandard x1, x2;
+
+        // 6 * 10²³, numero de avogrado no ieee standard:
+        x1.sign = 0;
+        x1.expoent = 1101;
+        x1.mantissa = 0.9852334701272665;
+
+        NewtonRaphson(x1, &x2, 4);
+        printf("\n[S]:%d - [E]:%d - [M]%.12lf\n", x2.sign, x2.expoent, x2.mantissa);
         return 0;
     }
