@@ -15,6 +15,12 @@
  * 
  * Para compilar:
  * gcc ieee754.c -lm
+ * 
+ * bibliografia:
+ * https://acassis.wordpress.com/2012/02/18/descobrindo-a-raiz-quadrada-com-metodo-newton-raphson/
+ * http://www.rfwireless-world.com/Tutorials/floating-point-tutorial.html
+ * http://class.ece.iastate.edu/arun/Cpre305/ieee754/ie4.html
+ * http://babbage.cs.qc.cuny.edu/IEEE-754.old/Decimal.html
  */
  
 #include <stdio.h>
@@ -150,6 +156,8 @@ typedef struct Ieee
         IeeeStandard dois;
         IeeeStandard factor1, factor2;
 
+        Double2Ieee(2.0, &dois);
+        
         /* 
          * Determinar o xk inicial:
          * Quando o chute inicial eh muito ruim a funcao nao converge
