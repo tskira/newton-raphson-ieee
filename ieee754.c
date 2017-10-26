@@ -168,14 +168,13 @@ typedef struct Ieee
          * blemas, portanto foi nescessario roubar o chute inicial.
          */
         
-        /* Chute padrao: 
+        /* Chute padrao: */
         Division(x, dois, &xk);
-        */
+    
 
         /* Chute roubado: */         
         Double2Ieee(700000000000.0, &xk);        
 
-        Double2Ieee(2.0, &dois);
 
         while( k-- > 0)
         {
@@ -187,6 +186,35 @@ typedef struct Ieee
         }
     }
 
+    /* 
+     * expoente - 1023
+     */
+    double SquareRoot(double mantissa, int exp_exc, double erro)
+    {
+
+        if (exp_exc & 1)
+        {
+            mantissa /= 2.0;
+            exp_exc ++;
+        }
+
+    
+       double x1 = mantissa/2.0 + 1.0;
+       double x0 = 0;
+       mantissa += 1.0;
+       exp_exc  /= 2;
+       
+       do
+       {
+           x0 = x1;
+           x1 = x0 + (mantissa - (x0 * x0))/ (2*x0); 
+           printf("\n[x0] : %.20lf \t [x1] : %.20lf ", x0, x1);
+       } while (fabs(x1 - x0) > erro);
+       printf("\nexp : %d", exp_exc);
+       return x1;
+    }
+
+
     int main()
     {
         IeeeStandard x1, x2;
@@ -196,7 +224,9 @@ typedef struct Ieee
         x1.expoent = 1101;
         x1.mantissa = 0.9852334701272665;
 
-        NewtonRaphson(x1, &x2, 4);
-        printf("\n[S]:%d - [E]:%d - [M]%.12lf\n", x2.sign, x2.expoent, x2.mantissa);
+        //NewtonRaphson(x1, &x2, 4);
+        //printf("\n[S]:%d - [E]:%d - [M]%.12lf\n", x2.sign, x2.expoent, x2.mantissa);
+
+        printf("\nResp : %.20lf\n", SquareRoot(x1.mantissa, (x1.expoent - BIAS), 5e-20));
         return 0;
     }
