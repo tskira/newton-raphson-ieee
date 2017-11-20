@@ -191,18 +191,18 @@ typedef struct Ieee
      */
     double SquareRoot(double mantissa, int exp_exc, double erro)
     {
+        int impar = 0;
 
         if (exp_exc & 1)
         {
-            mantissa /= 2.0;
-            exp_exc ++;
+            impar = 1;
+            exp_exc--;
         }
 
-    
-       double x1 = mantissa/2.0 + 1.0;
-       double x0 = 0;
-       mantissa += 1.0;
-       exp_exc  /= 2;
+        mantissa += 1.0;    
+       double x1 = mantissa;
+       double x0 = 0.0;
+       exp_exc /= 2;
        
        do
        {
@@ -211,6 +211,7 @@ typedef struct Ieee
            printf("\n[x0] : %.20lf \t [x1] : %.20lf ", x0, x1);
        } while (fabs(x1 - x0) > erro);
        printf("\nexp : %d", exp_exc);
+       if(impar) return(x1 * sqrt(2));
        return x1;
     }
 
@@ -220,13 +221,15 @@ typedef struct Ieee
         IeeeStandard x1, x2;
 
         // 6 * 10²³, numero de avogrado no ieee standard:
+        /*
         x1.sign = 0;
-        x1.expoent = 1101;
-        x1.mantissa = 0.9852334701272665;
-
+        x1.expoent = 1028;
+        x1.mantissa = 0.125;
+        */
+        Double2Ieee(36.0, &x1);
         //NewtonRaphson(x1, &x2, 4);
         //printf("\n[S]:%d - [E]:%d - [M]%.12lf\n", x2.sign, x2.expoent, x2.mantissa);
 
-        printf("\nResp : %.20lf\n", SquareRoot(x1.mantissa, (x1.expoent - BIAS), 5e-20));
+        printf("\nResp : %.20lf\n", SquareRoot(x1.mantissa, (x1.expoent - BIAS), 1e-15));
         return 0;
     }
