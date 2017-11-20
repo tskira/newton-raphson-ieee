@@ -226,7 +226,7 @@ typedef struct Ieee
         x1.expoent = 1028;
         x1.mantissa = 0.125;
         */
-        Double2Ieee(36.0, &x1);
+        Double2Ieee(47.0, &x1);
         //NewtonRaphson(x1, &x2, 4);
         //printf("\n[S]:%d - [E]:%d - [M]%.12lf\n", x2.sign, x2.expoent, x2.mantissa);
 
